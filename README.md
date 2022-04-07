@@ -1,7 +1,7 @@
 # Assault Cube Cheat
 **This is an application meant for educational purposes only.**<br/>
 Assault Cube Cheat is a win32 dynamic linked library that is developed for the sole purpose of<br/>
-learning basic program memory manipulation, pointer operations and reverse engineering skills.
+learning basic program memory manipulation, pointer operations and aquiring reverse engineering skills.
 
 
 ## Usage
