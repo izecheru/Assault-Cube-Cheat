@@ -125,16 +125,20 @@ void SaveLocation(float* teleportLocation, float* x, float* y, float* z)
 	std::cout << "\ncoords saved [" << *x << ", " << *y << ", " << *z << "]\n";
 }
 
+
 //currently not working, might not be pointing to the right memory adress
-void EntityListHealth(int* entityListPtr)
+void EntityListHealth(int *entityListPtr)
 {
 	std::cout << '\n';
-	int* temp;
-	for (int i = 4; i < 32; i += 4)
+	for (int i = 4; i < 124; i += 4)
 	{
-		temp = entityListPtr + i;
-		temp = temp + Offsets::ac_health;
-		std::cout << temp <<'\n';
+		//what the fuck is this shit?
+		if (*(int*)(*(int*)(*entityListPtr + i) + Offsets::ac_health) == 4)
+		{
+			continue;
+		}
+		//std::cout << "entity [" << i << "] health -> " << *(int*)(*(int*)(*entityListPtr + i) + Offsets::ac_health) << '\n';
+		*(int*)(*(int*)(*entityListPtr + i) + Offsets::ac_health) = 0;
 	}
 }
 
@@ -145,9 +149,9 @@ void Main(const HMODULE hModule)
 	freopen_s(&f, "CONOUT$", "w", stdout);
 	//PlaySound(INJECT, NULL, SND_SYNC);
 
-	int* localPlayerPtr, *ammo_mtp, *ammo_mk, *health, *frags, *playersNum, *grenades;
-	int* entityListPtr;
-	float* x,  *y,  *z;//player's coords
+	int *localPlayerPtr, *ammo_mtp, *ammo_mk, *health, *frags, *playersNum, *grenades;
+	int *entityListPtr;
+	float *x,  *y,  *z;//player's coords
 
 
 	int base	   = (int)GetModuleHandle(NULL);
@@ -158,7 +162,7 @@ void Main(const HMODULE hModule)
 	std::cout << "------------------------CURRENT ADRESSES-------------------------\n";
 	std::cout << "localPlayerPtr - [ " << std::hex << *localPlayerPtr << "]\n";
 	std::cout << "entityListPtr -  [ " << std::hex << *entityListPtr << "]\n";
-	std::cout << "ammo  - [ " << std::hex << (int*)(*localPlayerPtr + Offsets::ac_ammo)   << " ]\n";
+	std::cout << "ammo  - [ " << std::hex << (int*)(*localPlayerPtr + Offsets::ac_ammoMTP)   << " ]\n";
 	std::cout << "health- [ " << std::hex << (int*)(*localPlayerPtr + Offsets::ac_health) << " ]\n";
 	std::cout << "frags - [ " << std::hex << (int*)(*localPlayerPtr + Offsets::ac_frags)  << " ]\n";
 	std::cout << "   x  - [ " << std::hex << (float*)(*localPlayerPtr + Offsets::ac_x)    << " ]\n";
@@ -166,6 +170,7 @@ void Main(const HMODULE hModule)
 	std::cout << "   z  - [ " << std::hex << (float*)(*localPlayerPtr + Offsets::ac_z)    << " ]\n";
 	std::cout << "players num - [" << std::hex << (int*)(base + Offsets::ac_playerNumber) << " ]\n";
 	std::cout << "\n------------------------CURRENT ADRESSES-------------------------\n";
+
 #endif
 
 	std::cout << "\n\n----------------[Cheat table]----------------\n" <<
@@ -177,17 +182,17 @@ void Main(const HMODULE hModule)
 	int healthValue = 100;
 	bool bHealth = false, bAmmo = false;
 	std::cout << '\n';
-	EntityListHealth(entityListPtr);
+	//EntityListHealth(entityListPtr);
 	while (!GetAsyncKeyState(VK_END))
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		//so we get the pointer to the local player
 		//we dereference it so we can add the respective
 		//offsets and then initialize the pointer to that
 		//memory adress in which, let's say ammo value,
 		//is stored in the game
 		ammo_mtp = (int*)(*localPlayerPtr + Offsets::ac_ammoMTP);
-		ammo_mk = (int*)(*localPlayerPtr + Offsets::ac_ammoMK);
+		ammo_mk  = (int*)(*localPlayerPtr + Offsets::ac_ammoMK);
 		health   = (int*)(*localPlayerPtr + Offsets::ac_health);
 		frags    = (int*)(*localPlayerPtr + Offsets::ac_frags);
 		grenades = (int*)(*localPlayerPtr + Offsets::ac_grenades);
@@ -235,6 +240,13 @@ void Main(const HMODULE hModule)
 			TeleportTo(teleportLocation, x, y, z);
 		}
 
+		if (GetAsyncKeyState(VK_DELETE) & 1)
+		{
+			//set all entities health to 0
+			//still needs 1 hit to die
+			EntityListHealth(entityListPtr);
+		}
+
 		//infinite health
 		Health(bHealth, health, healthValue);
 
@@ -251,8 +263,8 @@ void Main(const HMODULE hModule)
 
 	//PlaySound(UINJECT, NULL, SND_SYNC);
 	delete[] teleportLocation;
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	FreeConsole();
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	FreeLibraryAndExitThread(hModule, 0);
 }
 
