@@ -49,11 +49,11 @@ void PrintName(int* localPlayer)
 	for (int i = 0; i < 16; i++)
 	{
 		// since char is 1 byte we get the first character adress and then
-		// we add 1 to get the next character, max len is 16
+		// we add 1 to get the next character, also max len is 16
 		name = (char*)(*localPlayer + offsets::ac_name + i);
 		std::cout << *(name);
 		//might add some random string generator later on
-		//would be cool to see the  name changing constantly
+		//would be cool to see the name changing constantly
 	}
 }
 
@@ -85,7 +85,6 @@ void Main(const HMODULE hModule)
 	std::cout << "   z  - [ " << std::hex << (float*)(*localPlayerPtr + offsets::ac_z)    << " ]\n";
 	std::cout << "players num - [" << std::hex << (int*)(base + offsets::ac_playerNumber) << " ]\n";
 	std::cout << "\n------------------------CURRENT ADRESSES-------------------------\n";
-
 #endif
 
 	std::cout << "\n\n----------------[Cheat table]----------------\n" <<
@@ -165,6 +164,7 @@ void Main(const HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
 		{
 			bRecoil = !bRecoil;
+			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
 			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
 		}
 
