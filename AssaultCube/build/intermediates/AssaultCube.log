@@ -1,8 +1,9 @@
 ﻿  DllMain.cpp
-E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(38,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(39,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(40,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\cheat repo\AssaultCubeCheat\AssaultCube\src\DllMain.cpp(67,62): warning C4101: 'playersNum': unreferenced local variable
+E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(58,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(59,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\cheat repo\AssaultCubeCheat\AssaultCube\headers\entities.h(60,76): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\cheat repo\AssaultCubeCheat\AssaultCube\cheats\infiniteStuff.h(10,20): warning C4309: '=': truncation of constant value
+E:\cheat repo\AssaultCubeCheat\AssaultCube\cheats\lookAway.h(16,13): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Generating code
   2 of 100 functions ( 2.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation

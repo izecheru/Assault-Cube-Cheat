@@ -1,19 +1,24 @@
 #pragma once
 #include<iostream>
+#include"../headers/localPlayer.h"
+namespace teleport
+{
+	void TeleportTo(Vector3* teleportLocation, LocalPlayer* player)
+	{//coords are x y z in this order
+		player->playerLocation.x = teleportLocation->x;
+		player->playerLocation.y = teleportLocation->y;
+		player->playerLocation.z = teleportLocation->z;
+		std::cout << "\nteleported to saved location [" << teleportLocation->x << ", " << 
+			teleportLocation->y << ", " << teleportLocation->z << "]\n";
+	}
 
-void TeleportTo(float* teleportLocation, float* x, float* y, float* z)
-{//coords are x y z in this order
-	*x = teleportLocation[0];
-	*y = teleportLocation[1];
-	*z = teleportLocation[2];
-	std::cout << "\nteleported to saved location [" << *x << ", " << *y << ", " << *z << "]\n";
-}
-
-void SaveLocation(float* teleportLocation, float* x, float* y, float* z)
-{//coords are x y z in this order
-	teleportLocation[0] = *x;
-	teleportLocation[1] = *y;
-	teleportLocation[2] = *z;
-	std::cout << "\ncoords saved [" << *x << ", " << *y << ", " << *z << "]\n";
+	void SaveLocation(Vector3* teleportLocation, LocalPlayer* player)
+	{//coords are x y z in this order
+		teleportLocation->x = player->playerLocation.x;
+		teleportLocation->y = player->playerLocation.y;
+		teleportLocation->z = player->playerLocation.z;
+		std::cout << "\nsaved location [" << teleportLocation->x << ", " <<
+			teleportLocation->y << ", " << teleportLocation->z << "]\n";
+	}
 }
 

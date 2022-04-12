@@ -74,5 +74,14 @@
     <ClInclude Include="headers\hooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cheats\radar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\localPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\lookAway.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

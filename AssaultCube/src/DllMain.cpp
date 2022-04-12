@@ -5,57 +5,17 @@
 #include<fstream>
 #include<thread>
 
+#include"../headers/localPlayer.h"
 #include "../headers/entities.h"
 #include "../cheats/infiniteStuff.h"
 #include "../cheats/teleport.h"
 #include "../headers/hooks.h"
+#include "../cheats/lookAway.h"
 
 #pragma comment(lib, "Winmm.lib")
 
 #define UINJECT "E:/repository/repo/audio/uninject.wav"
 #define INJECT "E:/repository/repo/audio/inject.wav"
-
-/*
-----------------FEATURE IDEAS-----------------
-
-----------------FEATURE IDEAS-----------------
-*/
-
-/*
-SOME STUFF ABOUT OFFSETS
----coords---
-x - 0x0004
-y - 0x0008
-z - 0x000C
-------------
-health - 0x00EC
-ammo - 0x140
-frags - 0x01DC
-localPlayer - 0x17B264 0x187C0C 0x17B370
-entityList - 0x187c10
-name - 0x205
-note to me -> mov, [eax+esi*4] 
-[] means dereferencing pointer
-eax+esi*4 would be some array stuff
-4 size of one instance in array, esi the index
-00548A94
-*/
-
-
-
-void PrintName(int* localPlayer)
-{
-	char* name;
-	for (int i = 0; i < 16; i++)
-	{
-		// since char is 1 byte we get the first character adress and then
-		// we add 1 to get the next character, also max len is 16
-		name = (char*)(*localPlayer + offsets::ac_name + i);
-		std::cout << *(name);
-		//might add some random string generator later on
-		//would be cool to see the name changing constantly
-	}
-}
 
 void Main(const HMODULE hModule)
 {
@@ -64,123 +24,95 @@ void Main(const HMODULE hModule)
 	freopen_s(&f, "CONOUT$", "w", stdout);
 	//PlaySound(INJECT, NULL, SND_SYNC);
 	hooks::Setup();
-	int *localPlayerPtr, *ammo_mtp, *ammo_mk, *health, *frags, *playersNum, *grenades;
-	int *entityListPtr;
-	float *x,  *y,  *z;//player's coords
 
+	// adress of the app in memory
+	// we need it so we can add the local player offset
+	int base = (int)GetModuleHandle(NULL);
 
-	int base	   = (int)GetModuleHandle(NULL);
-	localPlayerPtr = (int*)(base + offsets::ac_localPlayer);
-	entityListPtr  = (int*)(base + offsets::ac_entityList);
+	LocalPlayer* localPlayer = *(LocalPlayer**)(base + offsets::ac_localPlayer);
+	PrintName(localPlayer);
 
-#ifdef _DEBUG
-	std::cout << "------------------------CURRENT ADRESSES-------------------------\n";
-	std::cout << "localPlayer - [ " << std::hex << localPlayerPtr << "]\n";
-	std::cout << "entityList -  [ " << std::hex << entityListPtr << "]\n";
-	std::cout << "ammo  - [ " << std::hex << (int*)(*localPlayerPtr + offsets::ac_ammoMTP)   << " ]\n";
-	std::cout << "health- [ " << std::hex << (int*)(*localPlayerPtr + offsets::ac_health) << " ]\n";
-	std::cout << "frags - [ " << std::hex << (int*)(*localPlayerPtr + offsets::ac_frags)  << " ]\n";
-	std::cout << "   x  - [ " << std::hex << (float*)(*localPlayerPtr + offsets::ac_x)    << " ]\n";
-	std::cout << "   y  - [ " << std::hex << (float*)(*localPlayerPtr + offsets::ac_y)    << " ]\n";
-	std::cout << "   z  - [ " << std::hex << (float*)(*localPlayerPtr + offsets::ac_z)    << " ]\n";
-	std::cout << "players num - [" << std::hex << (int*)(base + offsets::ac_playerNumber) << " ]\n";
-	std::cout << "\n------------------------CURRENT ADRESSES-------------------------\n";
-#endif
-
-	std::cout << "\n\n----------------[Cheat table]----------------\n" <<
-		"num2 - infinite ammo\nnum1 - infinite health\nnum3 - set health to 9.000\nnum4 - save teleport location" <<
-		"\nnum5 - teleport to the last saved location\nnum6 - no recoil\n[USERNAME] - ";
-
-	PrintName(localPlayerPtr);
-	std::cout<< "\n\n----------------[Cheat table]----------------\n";
-
-	float* teleportLocation = new float [3] ;
-	int healthValue = 100;
+	// some bools for functions that have enable/ disable state
 	bool bHealth = false, bAmmo = false;
+	// if we didn't saved the location at least once than we surely
+	// don't want to teleport to 2.000000e-10 or something like that
+	bool savedOnce = false;
 
 	// since we have enable all hooks in hooks::Setup()
 	// all the bools must be set to true
 	bool bRecoil = true;
-
 	std::cout << '\n';
+
+	// vector used for location saving and teleporting
+	Vector3* vec = new Vector3;
 
 	while (!GetAsyncKeyState(VK_END))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		//so we get the pointer to the local player
-		//we dereference it so we can add the respective
-		//offsets and then initialize the pointer to that
-		//memory adress in which, let's say ammo value,
-		//is stored in the game
-		ammo_mtp = (int*)(*localPlayerPtr + offsets::ac_ammoMTP);
-		ammo_mk  = (int*)(*localPlayerPtr + offsets::ac_ammoMK);
-		health   = (int*)(*localPlayerPtr + offsets::ac_health);
-		frags    = (int*)(*localPlayerPtr + offsets::ac_frags);
-		grenades = (int*)(*localPlayerPtr + offsets::ac_grenades);
-		x = (float*)(*localPlayerPtr + offsets::ac_x);
-		y = (float*)(*localPlayerPtr + offsets::ac_y);
-		z = (float*)(*localPlayerPtr + offsets::ac_z);
 		
-		//enable/ disable infinite health
-		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
-		{
-			bHealth = !bHealth;
-			bHealth == 1 ? (std::cout << "\n[infinite health enabled]\n") : (std::cout << "\n[infinite health disabled]\n");
-		}
-
-		//enable/ disable infinite ammo
-		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
-		{
-			bAmmo = !bAmmo;
-			*grenades = 999;
-			bAmmo == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
-		}
-
-		//set health value to 9.000
-		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
-		{
-			//if we dont have infinite health enabled we just set the health to 9.000 and continue
-			if (!bHealth)
-			{
-				*health = 9000;
-			}
-			healthValue = 9000;
-		}
-
-		//save teleport location
-		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
-		{
-			//saving coords
-			SaveLocation(teleportLocation, x, y, z);
-		}
-
-		//teleport to the location previously saved
+		// enable/ disable recoil
 		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
-		{
-			TeleportTo(teleportLocation, x, y, z);
-		}
-
-		//enable or disable no recoil hook
-		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
 		{
 			bRecoil = !bRecoil;
 			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
 			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
 		}
 
-		if (GetAsyncKeyState(VK_DELETE) & 1)
+		// enable/ disable infinite health
+		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
 		{
-			//set all entities health to 0
-			//still needs 1 hit to die
-			EntityListHealth(entityListPtr);
+			bHealth = !bHealth;
+			bHealth == 1 ? (std::cout << "\n[infinite health enabled]\n") : (std::cout << "\n[infinite health disabled]\n");
 		}
 
-		//infinite health
-		Health(bHealth, health, healthValue);
+		//enale/ disable infinite ammo
+		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
+		{
+			bAmmo = !bAmmo;
+			bAmmo == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
+		}
 
-		// infinite ammo
-		Ammo(bAmmo, ammo_mtp);
-		Ammo(bAmmo, ammo_mk);
+		// save location so that we can teleport to it
+		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
+		{
+			savedOnce = !savedOnce;
+			teleport::SaveLocation(vec, localPlayer);
+		}
+
+		// teleport to a saved location
+		if (GetAsyncKeyState(VK_NUMPAD4) & 1 && savedOnce==true)
+		{
+			teleport::TeleportTo(vec, localPlayer);
+		}
+
+		// the sniper, pistol or shotgun are click to shoot once, so if i keep delete pressed
+		// i shoot untill i release delete, this combined with wait = 0 result in a laser type weapon
+		// be carefull tho, without recoil you are going to fly like a bird and mby hit your head
+		if (GetAsyncKeyState(VK_DELETE))
+		{
+			localPlayer->forceAttack = 1;
+		}
+		else
+		{
+			localPlayer->forceAttack = 0;
+		}
+
+		if (GetAsyncKeyState(VK_NUMPAD6)&1)
+		{
+			lookAway::Look(localPlayer);
+		}
+
+		// functions for infinite things like ammo, health
+		// they are in enabled, disabled state
+		Ammo(localPlayer, bAmmo);
+		Health(localPlayer, bHealth);
+
+		localPlayer->grenadeWait = 0;
+		localPlayer->rifleWait = 0;
+		localPlayer->sniperWait = 0;
+		localPlayer->pistolWait = 0;
+		localPlayer->shotgunWait = 0;
+		localPlayer->subMachineGunWait = 0;
 	}
 
 
@@ -190,7 +122,6 @@ void Main(const HMODULE hModule)
 	}
 	hooks::Destroy();
 	//PlaySound(UINJECT, NULL, SND_SYNC);
-	delete[] teleportLocation;
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	FreeConsole();
 	FreeLibraryAndExitThread(hModule, 0);

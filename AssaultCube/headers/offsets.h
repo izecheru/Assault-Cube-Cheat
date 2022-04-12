@@ -11,6 +11,14 @@ namespace offsets
 	constexpr auto ac_frags = 0x1DC;	//int
 	constexpr auto ac_grenades = 0x0144;	//int
 	constexpr auto ac_forceAttack = 0x204; //bool
+	constexpr auto ac_deaths = 0x1D8; //int
+	constexpr auto ac_team = 0x030C; //bool
+	constexpr auto ac_sniperAmmo = 0x13C; //int
+
+	//could also be isOnGround
+	constexpr auto ac_lowGravityJump = 0x005D; //bool
+	constexpr auto ac_forceCrouch = 0x0060;
+
 	// -------------PLAYER VARIABLES-------------
 	//0x124 mag sizew
 	//-------------CHAT-------------
