@@ -35,16 +35,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="headers\entities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cheats\teleport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cheats\infiniteStuff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\offsets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="minhook\buffer.h">
@@ -74,10 +68,7 @@
     <ClInclude Include="headers\hooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cheats\radar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\localPlayer.h">
+    <ClInclude Include="headers\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cheats\lookAway.h">

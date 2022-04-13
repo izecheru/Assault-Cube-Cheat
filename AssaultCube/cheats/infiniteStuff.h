@@ -1,25 +1,26 @@
 #pragma once
 #include<iostream>
-#include"../headers/localPlayer.h"
+#include"../headers/entity.h"
 
-void Health(LocalPlayer* player, bool enable)
+void Health(PlayerEntity* player, bool enable)
 {
 	if (enable)
 	{
 		// 34.000 cause I set the data type as int16_t
-		player->health = 34000;
+		player->health = 1337;
 	}
 }
 
-void Ammo(LocalPlayer* player, bool enable)
+void Ammo(PlayerEntity* player, bool enable)
 {
 	if (enable)
 	{
-		player->sniperAmmo = 20;
-		player->pistolAmmo = 20;
-		player->rifleAmmo = 20;
-		player->subMachineGunAmmo = 20;
-		player->shotgunAmmo = 20;
-		player->grenadeAmmo = 20;
+		player->sniperAmmo = 1337;
+		player->pistolAmmo = 1337;
+		player->rifleAmmo = 1337;
+		player->subMachineGunAmmo = 1337;
+		player->shotgunAmmo = 1337;
+		player->grenadeAmmo = 1337;
+		player->carbineAmmo = 1337;
 	}
 }

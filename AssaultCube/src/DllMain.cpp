@@ -5,17 +5,11 @@
 #include<fstream>
 #include<thread>
 
-#include"../headers/localPlayer.h"
-#include "../headers/entities.h"
+#include"../headers/entity.h"
 #include "../cheats/infiniteStuff.h"
 #include "../cheats/teleport.h"
 #include "../headers/hooks.h"
 #include "../cheats/lookAway.h"
-
-#pragma comment(lib, "Winmm.lib")
-
-#define UINJECT "E:/repository/repo/audio/uninject.wav"
-#define INJECT "E:/repository/repo/audio/inject.wav"
 
 void Main(const HMODULE hModule)
 {
@@ -29,14 +23,15 @@ void Main(const HMODULE hModule)
 	// we need it so we can add the local player offset
 	int base = (int)GetModuleHandle(NULL);
 
-	LocalPlayer* localPlayer = *(LocalPlayer**)(base + offsets::ac_localPlayer);
+	PlayerEntity* localPlayer = *(PlayerEntity**)(base + 0x187C0C);
 	PrintName(localPlayer);
-
 	// some bools for functions that have enable/ disable state
 	bool bHealth = false, bAmmo = false;
 	// if we didn't saved the location at least once than we surely
 	// don't want to teleport to 2.000000e-10 or something like that
 	bool savedOnce = false;
+
+	bool lowGrav = false;
 
 	// since we have enable all hooks in hooks::Setup()
 	// all the bools must be set to true
@@ -45,18 +40,9 @@ void Main(const HMODULE hModule)
 
 	// vector used for location saving and teleporting
 	Vector3* vec = new Vector3;
-
 	while (!GetAsyncKeyState(VK_END))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		
-		// enable/ disable recoil
-		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
-		{
-			bRecoil = !bRecoil;
-			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
-			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
-		}
 
 		// enable/ disable infinite health
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
@@ -85,6 +71,46 @@ void Main(const HMODULE hModule)
 			teleport::TeleportTo(vec, localPlayer);
 		}
 
+		// enable/ disable recoil
+		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
+		{
+			bRecoil = !bRecoil;
+			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
+			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
+		}
+
+		//set hp to 100
+		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
+		{
+			localPlayer->health = 100;
+		}
+
+		// look in a random direction
+		if (GetAsyncKeyState(VK_NUMPAD7)&1)
+		{
+			lookAway::Look(localPlayer);
+		}
+
+		// just add some hp
+		if (GetAsyncKeyState(VK_ADD) & 1)
+		{
+			localPlayer->health += 30;
+		}
+
+		// low gravity
+		if (GetAsyncKeyState(0x47) & 1)
+		{
+			lowGrav = !lowGrav;
+			lowGrav == 1 ? (std::cout << "\n[low gravity enabled]\n") : (std::cout << "\n[low gravity disabled]\n");
+		}
+		if (lowGrav)
+		{
+			localPlayer->lowGravity = 0;
+			if (GetAsyncKeyState(VK_SPACE)&1)
+			{
+				localPlayer->playerLocation.z += 0.1;
+			}
+		}
 		// the sniper, pistol or shotgun are click to shoot once, so if i keep delete pressed
 		// i shoot untill i release delete, this combined with wait = 0 result in a laser type weapon
 		// be carefull tho, without recoil you are going to fly like a bird and mby hit your head
@@ -92,15 +118,7 @@ void Main(const HMODULE hModule)
 		{
 			localPlayer->forceAttack = 1;
 		}
-		else
-		{
-			localPlayer->forceAttack = 0;
-		}
 
-		if (GetAsyncKeyState(VK_NUMPAD6)&1)
-		{
-			lookAway::Look(localPlayer);
-		}
 
 		// functions for infinite things like ammo, health
 		// they are in enabled, disabled state
@@ -113,6 +131,7 @@ void Main(const HMODULE hModule)
 		localPlayer->pistolWait = 0;
 		localPlayer->shotgunWait = 0;
 		localPlayer->subMachineGunWait = 0;
+		localPlayer->carbineWait = 0;
 	}
 
 
