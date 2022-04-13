@@ -16,7 +16,7 @@ Currently i dont have an interface implemented but i'm thinking about using ImGu
 - Saving coordinates and teleporting to them
 - No recoil -> the method i used also got rid of knockback when you shoot
 - No reload/ shoot animation time -> ur a laser (be careful though, when you use this combined with no recoil you will literally fly)
-	*- no animation time is enabled by default
+	-- no animation time is enabled by default
 - Low gravity jump
 
 
