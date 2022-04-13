@@ -1,15 +1,14 @@
-#include<Windows.h>
-#include<iostream>
-#include<Windows.h>
-#include<iostream>
-#include<fstream>
-#include<thread>
+#include <Windows.h>
+#include <iostream>
+#include <fstream>
+#include <thread>
 
-#include"../headers/entity.h"
+#include "../headers/entity.h"
+#include "../headers/hooks.h"
 #include "../cheats/infiniteStuff.h"
 #include "../cheats/teleport.h"
-#include "../headers/hooks.h"
 #include "../cheats/lookAway.h"
+#include "../cheats/stop.h"
 
 void Main(const HMODULE hModule)
 {
@@ -24,6 +23,7 @@ void Main(const HMODULE hModule)
 	int base = (int)GetModuleHandle(NULL);
 
 	PlayerEntity* localPlayer = *(PlayerEntity**)(base + 0x187C0C);
+	EntList* entityList = *(EntList**)(base + 0x187C10);
 	PrintName(localPlayer);
 	// some bools for functions that have enable/ disable state
 	bool bHealth = false, bAmmo = false;
@@ -38,8 +38,12 @@ void Main(const HMODULE hModule)
 	bool bRecoil = true;
 	std::cout << '\n';
 
+	// stop bots actions
+	bool bMove = false, bAttack = false;
+
 	// vector used for location saving and teleporting
-	Vector3* vec = new Vector3;
+	Vector3* teleportLocation = new Vector3;
+	Vector3* botTeleportLocation = new Vector3;
 	while (!GetAsyncKeyState(VK_END))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -62,13 +66,13 @@ void Main(const HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 		{
 			savedOnce = !savedOnce;
-			teleport::SaveLocation(vec, localPlayer);
+			teleport::SaveLocation(teleportLocation, localPlayer);
 		}
 
 		// teleport to a saved location
 		if (GetAsyncKeyState(VK_NUMPAD4) & 1 && savedOnce==true)
 		{
-			teleport::TeleportTo(vec, localPlayer);
+			teleport::TeleportTo(teleportLocation, localPlayer);
 		}
 
 		// enable/ disable recoil
@@ -76,7 +80,7 @@ void Main(const HMODULE hModule)
 		{
 			bRecoil = !bRecoil;
 			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
-			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
+			bRecoil == 1 ? (MH_EnableHook(hooks::RecoilTarget)) : (MH_DisableHook(hooks::RecoilTarget));
 		}
 
 		//set hp to 100
@@ -89,6 +93,18 @@ void Main(const HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD7)&1)
 		{
 			lookAway::Look(localPlayer);
+		}
+
+		// stop bot actions
+		if (GetAsyncKeyState(VK_NUMPAD8) & 1)
+		{
+			// a problem with this one, it teleports them to our location but the thing is
+			// it teleports them all to the same location over and over again
+			// might be easier to set some bool to 0, might need to reverse engineer some things
+			bAttack = !bAttack;
+			bMove = !bMove;
+			teleport::SaveLocation(botTeleportLocation, localPlayer);
+			bMove == 1 ? (std::cout << "\n[no movement enabled]\n") : (std::cout << "\n[no movement disabled]\n");
 		}
 
 		// just add some hp
@@ -108,7 +124,7 @@ void Main(const HMODULE hModule)
 			localPlayer->lowGravity = 0;
 			if (GetAsyncKeyState(VK_SPACE)&1)
 			{
-				localPlayer->playerLocation.z += 0.1;
+				localPlayer->location.z += 0.1;
 			}
 		}
 		// the sniper, pistol or shotgun are click to shoot once, so if i keep delete pressed
@@ -119,11 +135,42 @@ void Main(const HMODULE hModule)
 			localPlayer->forceAttack = 1;
 		}
 
+		// get the closest entityList ptr to our local player
+		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+		{
+			PlayerEntity* closestOne = ClosestEntity(localPlayer, entityList);
+			PrintName(closestOne);
+			//teleport::TeleportEntity(teleportLocation, closestOne);
+			teleport::TeleportAllEntitoes(botTeleportLocation, entityList);
+		}
+
+		if (GetAsyncKeyState(VK_INSERT)&1)
+		{
+			for (int i = 1; i <=31; i++)
+			{
+				// since the first index is nullptr if we try to read from it 
+				// we will crash the game, keep that in mind when reversing other games
+				// a simple if(something==nullptr) can save you a lot of time
+				if (entityList->vector[i] == nullptr)
+				{
+					std::cout << "\ndumb dumb, das a nullptr\n";
+					continue;
+				}
+				std::cout << "entityList - " << i << '\n';
+				PrintName(entityList->vector[i]);
+			}
+		}
+
 
 		// functions for infinite things like ammo, health
 		// they are in enabled, disabled state
 		Ammo(localPlayer, bAmmo);
 		Health(localPlayer, bHealth);
+		//----------------------------
+
+		// stop bot actions
+		stop::Move(entityList, bMove);
+		//-----------------
 
 		localPlayer->grenadeWait = 0;
 		localPlayer->rifleWait = 0;

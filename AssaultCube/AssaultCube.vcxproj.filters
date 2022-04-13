@@ -74,5 +74,11 @@
     <ClInclude Include="cheats\lookAway.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\opengl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cheats\stop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
