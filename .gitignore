@@ -1,3 +1,5 @@
+.vs/
+intermediates/
 *.suo
 *.user
 *.userosscache
