@@ -2,7 +2,7 @@
 
 void PrintName(PlayerEntity* player)
 {
-	std::cout << " Entity name -> ";
+	std::cout << " Name -> ";
 	for (int i = 0; i < 16; i++)
 	{
 		std::cout << player->name[i];

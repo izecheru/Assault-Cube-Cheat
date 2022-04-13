@@ -9,6 +9,24 @@
 #include "../cheats/teleport.h"
 #include "../cheats/lookAway.h"
 
+void Main(HMODULE hModule);
+
+BOOL WINAPI DllMain(HMODULE hModule, DWORD reason_for_call, void* reserved)
+{
+	switch (reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+		CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)(Main), hModule, NULL, nullptr);
+		break;
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
+
 void Main(const HMODULE hModule)
 {
 	AllocConsole();
@@ -21,24 +39,28 @@ void Main(const HMODULE hModule)
 	// we need it so we can add the local player offset
 	int base = (int)GetModuleHandle(NULL);
 
+
+	// --------------- LOCAL PLAYER AND ENT LIST INITIALIZATION ---------------  
 	PlayerEntity* localPlayer = *(PlayerEntity**)(base + 0x187C0C);
 	EntList* entityList = *(EntList**)(base + 0x187C10);
+	// --------------- LOCAL PLAYER AND ENT LIST INITIALIZATION ---------------  
+
+
 	PrintName(localPlayer);
 	// some bools for functions that have enable/ disable state
 	bool bHealth = false, bAmmo = false;
+
 	// if we didn't saved the location at least once than we surely
 	// don't want to teleport to 2.000000e-10 or something like that
 	bool savedOnce = false;
 
+	// low gravity bool for enable/ disable state
 	bool lowGrav = false;
 
 	// since we have enable all hooks in hooks::Setup()
 	// all the bools must be set to true
 	bool bRecoil = true;
 	std::cout << '\n';
-
-	// stop bots actions
-	bool bMove = false, bAttack = false;
 
 	// vector used for location saving and teleporting
 	Vector3* teleportLocation = new Vector3;
@@ -94,18 +116,6 @@ void Main(const HMODULE hModule)
 			lookAway::Look(localPlayer);
 		}
 
-		// stop bot actions
-		if (GetAsyncKeyState(VK_NUMPAD8) & 1)
-		{
-			// a problem with this one, it teleports them to our location but the thing is
-			// it teleports them all to the same location over and over again
-			// might be easier to set some bool to 0, might need to reverse engineer some things
-			bAttack = !bAttack;
-			bMove = !bMove;
-			teleport::SaveLocation(botTeleportLocation, localPlayer);
-			bMove == 1 ? (std::cout << "\n[no movement enabled]\n") : (std::cout << "\n[no movement disabled]\n");
-		}
-
 		// just add some hp
 		if (GetAsyncKeyState(VK_ADD) & 1)
 		{
@@ -126,9 +136,10 @@ void Main(const HMODULE hModule)
 				localPlayer->location.z += 0.1;
 			}
 		}
+
 		// the sniper, pistol or shotgun are click to shoot once, so if i keep delete pressed
 		// i shoot untill i release delete, this combined with wait = 0 result in a laser type weapon
-		// be carefull tho, without recoil you are going to fly like a bird and mby hit your head
+		// be carefull tho, without recoil you are going to fly like a rocket and mby hit your head
 		if (GetAsyncKeyState(VK_DELETE))
 		{
 			localPlayer->forceAttack = 1;
@@ -143,6 +154,7 @@ void Main(const HMODULE hModule)
 			teleport::TeleportAllEntitoes(botTeleportLocation, entityList);
 		}
 
+		// print out all entities names
 		if (GetAsyncKeyState(VK_INSERT)&1)
 		{
 			for (int i = 1; i <=31; i++)
@@ -160,13 +172,11 @@ void Main(const HMODULE hModule)
 			}
 		}
 
-
 		// functions for infinite things like ammo, health
 		// they are in enabled, disabled state
 		Ammo(localPlayer, bAmmo);
 		Health(localPlayer, bHealth);
 		//----------------------------
-
 
 		localPlayer->grenadeWait = 0;
 		localPlayer->rifleWait = 0;
@@ -182,25 +192,11 @@ void Main(const HMODULE hModule)
 	{
 		fclose(f);
 	}
+
+	// getting rid of hooks before closing the thread
 	hooks::Destroy();
-	//PlaySound(UINJECT, NULL, SND_SYNC);
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	FreeConsole();
 	FreeLibraryAndExitThread(hModule, 0);
-}
-
-BOOL WINAPI DllMain(HMODULE hModule, DWORD reason_for_call, void* reserved)
-{
-	switch (reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		DisableThreadLibraryCalls(hModule);
-		CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)(Main), hModule, NULL, nullptr);
-		break;
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
 }
