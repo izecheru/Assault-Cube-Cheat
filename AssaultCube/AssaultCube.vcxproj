@@ -154,6 +154,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cheats\infiniteStuff.cpp" />
+    <ClCompile Include="cheats\lookAway.cpp" />
+    <ClCompile Include="cheats\teleport.cpp" />
+    <ClCompile Include="headers\entity.cpp" />
+    <ClCompile Include="headers\hooks.cpp" />
     <ClCompile Include="minhook\buffer.c" />
     <ClCompile Include="minhook\hde\hde32.c" />
     <ClCompile Include="minhook\hde\hde64.c" />
@@ -164,7 +169,6 @@
   <ItemGroup>
     <ClInclude Include="cheats\infiniteStuff.h" />
     <ClInclude Include="cheats\lookAway.h" />
-    <ClInclude Include="cheats\stop.h" />
     <ClInclude Include="cheats\teleport.h" />
     <ClInclude Include="headers\hooks.h" />
     <ClInclude Include="headers\entity.h" />

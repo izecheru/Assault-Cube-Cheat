@@ -8,7 +8,6 @@
 #include "../cheats/infiniteStuff.h"
 #include "../cheats/teleport.h"
 #include "../cheats/lookAway.h"
-#include "../cheats/stop.h"
 
 void Main(const HMODULE hModule)
 {
@@ -168,9 +167,6 @@ void Main(const HMODULE hModule)
 		Health(localPlayer, bHealth);
 		//----------------------------
 
-		// stop bot actions
-		stop::Move(entityList, bMove);
-		//-----------------
 
 		localPlayer->grenadeWait = 0;
 		localPlayer->rifleWait = 0;
