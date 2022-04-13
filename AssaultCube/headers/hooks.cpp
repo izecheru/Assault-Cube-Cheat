@@ -1,4 +1,4 @@
-#pragma once
+#include<iostream>
 #include"hooks.h"
 
 	void __stdcall hooks::DetourRecoil(float* x, float* y)

@@ -1,4 +1,3 @@
-#pragma once
 #include"infiniteStuff.h"
 
 void Health(PlayerEntity* player, bool enable)

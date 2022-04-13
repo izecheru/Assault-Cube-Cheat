@@ -1,6 +1,5 @@
 #pragma once
-#include<iostream>
-#include"../minhook/MinHook.h"
+#include<MinHook.h>
 
 namespace hooks
 {
@@ -17,7 +16,6 @@ namespace hooks
 	inline wglSwapBuffers WglSwapBuffersTarget = reinterpret_cast<wglSwapBuffers>(GetProcAddress(GetModuleHandle("OPENGL32.dll"), "wglSwapBuffers"));
 
 	int __stdcall DetourWglSwapBuffers(HDC p1);
-
 
 	void Setup();
 	void Destroy();

@@ -94,13 +94,13 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\repository\MinHook\include;D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\repository\MinHook\build\VC16\lib\Release;D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;libMinHook.x86.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -112,15 +112,15 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\repository\MinHook\include;D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\repository\MinHook\build\VC16\lib\Release;D:\game hacking tools\libraries\glfw-3.3.7.bin.WIN32\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;libMinHook.x86.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -159,11 +159,6 @@
     <ClCompile Include="cheats\teleport.cpp" />
     <ClCompile Include="headers\entity.cpp" />
     <ClCompile Include="headers\hooks.cpp" />
-    <ClCompile Include="minhook\buffer.c" />
-    <ClCompile Include="minhook\hde\hde32.c" />
-    <ClCompile Include="minhook\hde\hde64.c" />
-    <ClCompile Include="minhook\hook.c" />
-    <ClCompile Include="minhook\trampoline.c" />
     <ClCompile Include="src\DllMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,14 +168,6 @@
     <ClInclude Include="headers\hooks.h" />
     <ClInclude Include="headers\entity.h" />
     <ClInclude Include="headers\opengl.h" />
-    <ClInclude Include="minhook\buffer.h" />
-    <ClInclude Include="minhook\hde\hde32.h" />
-    <ClInclude Include="minhook\hde\hde64.h" />
-    <ClInclude Include="minhook\hde\pstdint.h" />
-    <ClInclude Include="minhook\hde\table32.h" />
-    <ClInclude Include="minhook\hde\table64.h" />
-    <ClInclude Include="minhook\MinHook.h" />
-    <ClInclude Include="minhook\trampoline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

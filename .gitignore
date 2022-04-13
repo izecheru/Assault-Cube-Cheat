@@ -1,3 +1,4 @@
 AssaultCube/.vs/
-*.ipch
-AssaultCube/build/
+*.pdb
+
+AssaultCube/build/intermediates/

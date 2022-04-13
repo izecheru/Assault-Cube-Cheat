@@ -1,4 +1,3 @@
-#pragma once
 #include"entity.h"
 
 void PrintName(PlayerEntity* player)

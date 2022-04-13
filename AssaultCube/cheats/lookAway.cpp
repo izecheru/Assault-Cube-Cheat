@@ -1,4 +1,3 @@
-#pragma once
 #include"lookAway.h"
 
 // some retarded ideea that came to my mind
