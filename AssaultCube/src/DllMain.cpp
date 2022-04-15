@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include<MinHook.h>
 
 #include "../headers/entity.h"
 #include "../headers/hooks.h"
@@ -57,7 +58,7 @@ void Main(const HMODULE hModule)
 	// low gravity bool for enable/ disable state
 	bool lowGrav = false;
 
-	// since we have enable all hooks in hooks::Setup()
+	// since we have enable all hooks in Setup()
 	// all the bools must be set to true
 	bool bRecoil = true;
 	std::cout << '\n';
@@ -80,7 +81,7 @@ void Main(const HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 		{
 			bAmmo = !bAmmo;
-			bAmmo == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
+			bRecoil == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
 		}
 
 		// save location so that we can teleport to it
@@ -88,6 +89,7 @@ void Main(const HMODULE hModule)
 		{
 			savedOnce = !savedOnce;
 			teleport::SaveLocation(teleportLocation, localPlayer);
+			teleport::SaveLocation(botTeleportLocation, localPlayer);
 		}
 
 		// teleport to a saved location
@@ -101,7 +103,7 @@ void Main(const HMODULE hModule)
 		{
 			bRecoil = !bRecoil;
 			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
-			bRecoil == 1 ? (MH_EnableHook(hooks::RecoilTarget)) : (MH_DisableHook(hooks::RecoilTarget));
+			bRecoil == 1 ? (MH_EnableHook(hooks::noRecoilTarget)) : (MH_DisableHook(hooks::noRecoilTarget));
 		}
 
 		//set hp to 100
@@ -133,7 +135,7 @@ void Main(const HMODULE hModule)
 			localPlayer->lowGravity = 0;
 			if (GetAsyncKeyState(VK_SPACE)&1)
 			{
-				localPlayer->location.z += 0.1;
+				localPlayer->location.z += 0.1f;
 			}
 		}
 
@@ -148,28 +150,19 @@ void Main(const HMODULE hModule)
 		// get the closest entityList ptr to our local player
 		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
 		{
-			PlayerEntity* closestOne = ClosestEntity(localPlayer, entityList);
-			PrintName(closestOne);
-			//teleport::TeleportEntity(teleportLocation, closestOne);
-			teleport::TeleportAllEntitoes(botTeleportLocation, entityList);
+			//PlayerEntity* closestOne = ClosestEntity(localPlayer, entityList);
+			//PrintName(closestOne);
+			if (!savedOnce)
+			{
+				std::cout << "\nfirst save location then teleport\n";
+				continue;
+			}
+			teleport::TeleportAllEntities(botTeleportLocation, entityList);
 		}
 
-		// print out all entities names
 		if (GetAsyncKeyState(VK_INSERT)&1)
 		{
-			for (int i = 1; i <=31; i++)
-			{
-				// since the first index is nullptr if we try to read from it 
-				// we will crash the game, keep that in mind when reversing other games
-				// a simple if(something==nullptr) can save you a lot of time
-				if (entityList->vector[i] == nullptr)
-				{
-					std::cout << "\ndumb dumb, das a nullptr\n";
-					continue;
-				}
-				std::cout << "entityList - " << i << '\n';
-				PrintName(entityList->vector[i]);
-			}
+
 		}
 
 		// functions for infinite things like ammo, health

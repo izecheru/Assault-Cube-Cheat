@@ -24,15 +24,16 @@ void teleport::TeleportEntity(Vector3* teleportLocation, PlayerEntity* entity)
 	entity->location.x = teleportLocation->x;
 	entity->location.y = teleportLocation->y;
 	entity->location.z = teleportLocation->z;
-	std::cout << "\nentity teleported\n";
 }
 
-void teleport::TeleportAllEntitoes(Vector3* teleportLocation, EntList* entityList)
+void teleport::TeleportAllEntities(Vector3* teleportLocation, EntList* entityList)
 {
 	for (int i = 1; i <= 31; i++)
 	{
-		entityList->vector[i]->location.x = teleportLocation->x;
-		entityList->vector[i]->location.y = teleportLocation->y;
-		entityList->vector[i]->location.z = teleportLocation->z;
+		if (entityList->vector[i] == nullptr)
+		{
+			continue;
+		}
+		TeleportEntity(teleportLocation, entityList->vector[i]);
 	}
 }

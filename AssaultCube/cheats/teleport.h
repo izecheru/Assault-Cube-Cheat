@@ -10,6 +10,6 @@ namespace teleport
 
 	void TeleportEntity(Vector3* teleportLocation, PlayerEntity* entity);
 
-	void TeleportAllEntitoes(Vector3* teleportLocation, EntList* entityList);
+	void TeleportAllEntities(Vector3* teleportLocation, EntList* entityList);
 }
 

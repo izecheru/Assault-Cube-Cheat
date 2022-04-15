@@ -27,6 +27,12 @@ struct Vector4 {
 	float x, y, z, w;
 };
 
+//#define STR_MERGE_IMPL(a,b) a##b
+//#define STR_MERGE(a,b) STR_MERGE_IMPL(a,b)
+//#define MAKE_PAD(size) STR_MERGE(_pad, __COUNTER__)[size]
+//#define DEFINE_MEMBER_N(type, name, offset) struct {unsigned char MAKE_PAD(offset);type name;}
+//automatic padding macros, do not work with entity list 
+
 class PlayerEntity
 {
 public:
@@ -72,8 +78,12 @@ public:
 	char pad_0190[116]; //0x0190
 	bool forceAttack; //0x0204
 	char name[16]; //0x0205
-	char pad_0215[1089]; //0x0215
-}; //Size: 0x0656
+	char pad_0215[245]; //0x0215
+	char pad_030A[2]; //0x030A pad i made manually cause the bool was 3 bites in the 4 bytes "array" so had to take 2 bytes out
+	bool team; //0x030C
+	char pad_030D[835]; //0x030D
+
+}; //Size: 0x0650
 
 struct EntList
 {
