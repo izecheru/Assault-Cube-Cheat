@@ -1,15 +1,32 @@
-#include<Windows.h>
-#include<iostream>
-#include<Windows.h>
-#include<iostream>
-#include<fstream>
-#include<thread>
+#include <Windows.h>
+#include <iostream>
+#include <fstream>
+#include <thread>
+#include<MinHook.h>
 
-#include"../headers/entity.h"
+#include "../headers/entity.h"
+#include "../headers/hooks.h"
 #include "../cheats/infiniteStuff.h"
 #include "../cheats/teleport.h"
-#include "../headers/hooks.h"
 #include "../cheats/lookAway.h"
+
+void Main(HMODULE hModule);
+
+BOOL WINAPI DllMain(HMODULE hModule, DWORD reason_for_call, void* reserved)
+{
+	switch (reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+		CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)(Main), hModule, NULL, nullptr);
+		break;
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
 
 void Main(const HMODULE hModule)
 {
@@ -23,23 +40,32 @@ void Main(const HMODULE hModule)
 	// we need it so we can add the local player offset
 	int base = (int)GetModuleHandle(NULL);
 
+
+	// --------------- LOCAL PLAYER AND ENT LIST INITIALIZATION ---------------  
 	PlayerEntity* localPlayer = *(PlayerEntity**)(base + 0x187C0C);
+	EntList* entityList = *(EntList**)(base + 0x187C10);
+	// --------------- LOCAL PLAYER AND ENT LIST INITIALIZATION ---------------  
+
+
 	PrintName(localPlayer);
 	// some bools for functions that have enable/ disable state
 	bool bHealth = false, bAmmo = false;
+
 	// if we didn't saved the location at least once than we surely
 	// don't want to teleport to 2.000000e-10 or something like that
 	bool savedOnce = false;
 
+	// low gravity bool for enable/ disable state
 	bool lowGrav = false;
 
-	// since we have enable all hooks in hooks::Setup()
+	// since we have enable all hooks in Setup()
 	// all the bools must be set to true
 	bool bRecoil = true;
 	std::cout << '\n';
 
 	// vector used for location saving and teleporting
-	Vector3* vec = new Vector3;
+	Vector3* teleportLocation = new Vector3;
+	Vector3* botTeleportLocation = new Vector3;
 	while (!GetAsyncKeyState(VK_END))
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -55,20 +81,21 @@ void Main(const HMODULE hModule)
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
 		{
 			bAmmo = !bAmmo;
-			bAmmo == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
+			bRecoil == 1 ? (std::cout << "\n[infinite ammo enabled]\n") : (std::cout << "\n[infinite ammo disabled]\n");
 		}
 
 		// save location so that we can teleport to it
 		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
 		{
 			savedOnce = !savedOnce;
-			teleport::SaveLocation(vec, localPlayer);
+			teleport::SaveLocation(teleportLocation, localPlayer);
+			teleport::SaveLocation(botTeleportLocation, localPlayer);
 		}
 
 		// teleport to a saved location
 		if (GetAsyncKeyState(VK_NUMPAD4) & 1 && savedOnce==true)
 		{
-			teleport::TeleportTo(vec, localPlayer);
+			teleport::TeleportTo(teleportLocation, localPlayer);
 		}
 
 		// enable/ disable recoil
@@ -76,7 +103,7 @@ void Main(const HMODULE hModule)
 		{
 			bRecoil = !bRecoil;
 			bRecoil == 1 ? (std::cout << "\n[no recoil enabled]\n") : (std::cout << "\n[no recoil disabled]\n");
-			bRecoil == 1 ? (MH_EnableHook(hooks::pRecoilTarget)) : (MH_DisableHook(hooks::pRecoilTarget));
+			bRecoil == 1 ? (MH_EnableHook(hooks::noRecoilTarget)) : (MH_DisableHook(hooks::noRecoilTarget));
 		}
 
 		//set hp to 100
@@ -108,22 +135,41 @@ void Main(const HMODULE hModule)
 			localPlayer->lowGravity = 0;
 			if (GetAsyncKeyState(VK_SPACE)&1)
 			{
-				localPlayer->playerLocation.z += 0.1;
+				localPlayer->location.z += 0.1f;
 			}
 		}
+
 		// the sniper, pistol or shotgun are click to shoot once, so if i keep delete pressed
 		// i shoot untill i release delete, this combined with wait = 0 result in a laser type weapon
-		// be carefull tho, without recoil you are going to fly like a bird and mby hit your head
+		// be carefull tho, without recoil you are going to fly like a rocket and mby hit your head
 		if (GetAsyncKeyState(VK_DELETE))
 		{
 			localPlayer->forceAttack = 1;
 		}
 
+		// get the closest entityList ptr to our local player
+		if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+		{
+			//PlayerEntity* closestOne = ClosestEntity(localPlayer, entityList);
+			//PrintName(closestOne);
+			if (!savedOnce)
+			{
+				std::cout << "\nfirst save location then teleport\n";
+				continue;
+			}
+			teleport::TeleportAllEntities(botTeleportLocation, entityList);
+		}
+
+		if (GetAsyncKeyState(VK_INSERT)&1)
+		{
+
+		}
 
 		// functions for infinite things like ammo, health
 		// they are in enabled, disabled state
 		Ammo(localPlayer, bAmmo);
 		Health(localPlayer, bHealth);
+		//----------------------------
 
 		localPlayer->grenadeWait = 0;
 		localPlayer->rifleWait = 0;
@@ -139,25 +185,11 @@ void Main(const HMODULE hModule)
 	{
 		fclose(f);
 	}
+
+	// getting rid of hooks before closing the thread
 	hooks::Destroy();
-	//PlaySound(UINJECT, NULL, SND_SYNC);
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	FreeConsole();
 	FreeLibraryAndExitThread(hModule, 0);
-}
-
-BOOL WINAPI DllMain(HMODULE hModule, DWORD reason_for_call, void* reserved)
-{
-	switch (reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		DisableThreadLibraryCalls(hModule);
-		CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)(Main), hModule, NULL, nullptr);
-		break;
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
-	}
-	return TRUE;
 }
